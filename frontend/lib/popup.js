@@ -1,3 +1,55 @@
+class Point {
+    constructor(x = 0, y = 0) {
+      this.x = x;
+      this.y = y;
+    }
+}
+class MoveElement {
+    constructor(elementAnchor, elementContent = undefined) {
+        this.elementAnchor = elementAnchor;
+        this.elementContent = elementContent ?? elementAnchor;
+        this.isMouseDown = false;
+        this.startMousePosition = new Point();
+        this.startElementPosition = new Point();
+        this.elementAnchor.style.cursor = 'move';
+        this.elementAnchor.style.userSelect = 'none';
+        this.bind();
+    }
+    
+    bind() {
+        this.elementAnchor.addEventListener('mousedown', evt => this.onDragStart(evt));
+        this.elementAnchor.addEventListener('mouseup', evt => this.onDragEnd(evt));
+        document.addEventListener('mousemove', evt => this.onDrag(evt));
+    }
+
+    unbind() {
+        this.elementAnchor.removeEventListener('mousedown', evt => this.onDragStart(evt));
+        this.elementAnchor.removeEventListener('mouseup', evt => this.onDragEnd(evt));
+        document.removeEventListener('mousemove', evt => this.onDrag(evt));
+    }
+  
+    onDragStart(event) {
+        this.isMouseDown = true;
+        this.startMousePosition = new Point(event.clientX, event.clientY);
+        const rect = this.elementContent.getBoundingClientRect();
+        this.startElementPosition = new Point(rect.left, rect.top);
+    }
+  
+    onDrag(event) {
+        if (this.isMouseDown) {
+            const offset = new Point(event.clientX - this.startMousePosition.x, event.clientY - this.startMousePosition.y);
+            this.elementContent.style.position = 'absolute';
+            this.elementContent.style.transform = '';
+            this.elementContent.style.left = `${this.startElementPosition.x + offset.x}px`;
+            this.elementContent.style.top = `${this.startElementPosition.y + offset.y}px`;
+        }
+    }
+  
+    onDragEnd() {
+        this.isMouseDown = false;
+    }
+}
+
 export class Popup {
     static defautTitle = 'Alert';
     static items = [];
@@ -114,6 +166,9 @@ export class Popup {
         document.body.appendChild(div_modal).appendChild(div_popup);
         this._dom_elements['div_modal'] = div_modal;
         this._dom_elements['div_popup'] = div_popup;
+        if (this._showHeader) {
+            this.mover = new MoveElement(this._dom_elements['div_header'], div_popup);
+        }
         return this;
     }
 

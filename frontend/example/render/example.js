@@ -54,6 +54,9 @@ export class ExampleRender extends Component {
 
     async loadServerRenderedHtml(weekday, selectedId) {
         this.table2.innerHTML = await action.get_emploee_list_rendered(weekday, selectedId);
-        store.status = await action.get_emploee_details_rendered(weekday, selectedId);
+        store.status = '---';
+        if (selectedId !== -1) {
+            store.status = await action.get_emploee_details_rendered(weekday, selectedId);
+        }
     }
 }
