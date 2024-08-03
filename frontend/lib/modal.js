@@ -50,12 +50,12 @@ class MoveElement {
     }
 }
 
-export class Popup {
+export class Modal {
     static defautTitle = 'Alert';
     static items = [];
     styles = {
-        modal: 'display:block;position:fixed;top:0px;left:0px;width:100%;height:100%;background-color:rgb(0,0,0,0.2);',
-        popup: 'position:fixed;top:50%;left:50%;transform:translate(-50%, -50%);min-width:500px;max-width:90vw;background-color:#ffffff;border:1px solid #888888;border-radius:5px;box-shadow: 0 0 10px #888888;',
+        backdrop: 'display:block;position:fixed;top:0px;left:0px;width:100%;height:100%;background-color:rgb(0,0,0,0.2);',
+        modal: 'position:fixed;top:50%;left:50%;transform:translate(-50%, -50%);min-width:500px;max-width:90vw;background-color:#ffffff;border:1px solid #888888;border-radius:5px;box-shadow: 0 0 10px #888888;',
         header: 'padding:10px;background-color:#cccccc;border-top-left-radius:5px;border-top-right-radius:5px;',
         close: 'color:#0;float:right;cursor:pointer;font-weight:bold;',
         main: 'display:flex;flex-direction:column;justify-content:center;align-items:center;height:fit-content;min-height:100px;max-height:80vh;overflow: auto;padding:15px;border-top:1px solid #888888;border-bottom: 1px solid #888888;',
@@ -63,15 +63,15 @@ export class Popup {
         button: 'float:right;margin: 0px 0px 5px 10px;'
     }
     constructor() {
-        this._id = `popup${new Date().getTime().toString(16)}`;
+        this._id = `modal${new Date().getTime().toString(16)}`;
         this._title = undefined;
         this._buttons = [];
         this._component = undefined;
         this._showHeader = true;
         this._showFooter = true;
         this._dom_elements = { buttons: [] };
-        this.title(Popup.defautTitle);
-        Popup.items.push(this._id);
+        this.title(Modal.defautTitle);
+        Modal.items.push(this._id);
     }
 
     title(text, showCloseButton = false) { this._title = { text, showCloseButton }; return this; };
@@ -85,7 +85,7 @@ export class Popup {
     get id() { return this._id; }
     get dom() { return this._dom_elements; }
 
-    appendHeader(div_popup) {
+    appendHeader(div_modal) {
         if (this._showHeader) {
             const div_header = document.createElement('div');
             div_header.setAttribute('style', this.styles.header);
@@ -98,15 +98,15 @@ export class Popup {
                 const btn = document.createElement('span');
                 btn.innerHTML = ' &times;'
                 btn.setAttribute('style', this.styles.close);
-                btn.addEventListener('click', () => Popup.close(this._id));
+                btn.addEventListener('click', () => Modal.close(this._id));
                 div_header.appendChild(btn);
             }
-            div_popup.appendChild(div_header);
+            div_modal.appendChild(div_header);
             this._dom_elements['div_header'] = div_header;
         }
     }
 
-    appendMain(div_popup, message) {
+    appendMain(div_modal, message) {
         const div_main = document.createElement('div');
         div_main.setAttribute('style', this.styles.main);
 
@@ -118,11 +118,11 @@ export class Popup {
             this._component._setParent(undefined, div_main);
             this._component.onInit();
         }
-        div_popup.appendChild(div_main);
+        div_modal.appendChild(div_main);
         this._dom_elements['div_main'] = div_main;
     }
 
-    appendFooter(div_popup) {
+    appendFooter(div_modal) {
         if (this._showFooter) {
             const div_footer = document.createElement('div');
             div_footer.setAttribute('style', this.styles.footer);
@@ -133,7 +133,7 @@ export class Popup {
 
             this._buttons.toReversed().forEach(b => {
                 if (b.action === undefined) {
-                    b.action = () => Popup.close(this._id)
+                    b.action = () => Modal.close(this._id)
                 };
                 const button = document.createElement('button');
                 button.className = 'btn btn-primary';
@@ -143,39 +143,39 @@ export class Popup {
                 div_footer.appendChild(button);
                 this._dom_elements.buttons.unshift(button);
             });
-            div_popup.appendChild(div_footer);
+            div_modal.appendChild(div_footer);
             this._dom_elements['div_footer'] = div_footer;
         }
     }
 
     show(message = '') {
         // Background
+        const div_backdrop = document.createElement('div');
+        div_backdrop.setAttribute('id', `${this._id}`);
+        div_backdrop.setAttribute('style', `z-index:${990 + Modal.items.length};` + this.styles.backdrop);
+
+        // Modal-Window
         const div_modal = document.createElement('div');
-        div_modal.setAttribute('id', `${this._id}`);
-        div_modal.setAttribute('style', `z-index:${990 + Popup.items.length};` + this.styles.modal);
+        div_modal.setAttribute('style', this.styles.modal);
 
-        // Popup-Window
-        const div_popup = document.createElement('div');
-        div_popup.setAttribute('style', this.styles.popup);
+        // Modal-Content
+        this.appendHeader(div_modal)
+        this.appendMain(div_modal, message)
+        this.appendFooter(div_modal)
 
-        // Popup-Content
-        this.appendHeader(div_popup)
-        this.appendMain(div_popup, message)
-        this.appendFooter(div_popup)
-
-        document.body.appendChild(div_modal).appendChild(div_popup);
+        document.body.appendChild(div_backdrop).appendChild(div_modal);
+        this._dom_elements['div_backdrop'] = div_backdrop;
         this._dom_elements['div_modal'] = div_modal;
-        this._dom_elements['div_popup'] = div_popup;
         if (this._showHeader) {
-            this.mover = new MoveElement(this._dom_elements['div_header'], div_popup);
+            this.mover = new MoveElement(this._dom_elements['div_header'], div_modal);
         }
         return this;
     }
 
     static close(id = undefined) {
-        id = (id === undefined && Popup.items.length > 0) ? Popup.items[Popup.items.length - 1] : id;
+        id = (id === undefined && Modal.items.length > 0) ? Modal.items[Modal.items.length - 1] : id;
         if (id !== undefined) {
-            Popup.items = Popup.items.filter(x => x !== id);
+            Modal.items = Modal.items.filter(x => x !== id);
             const el = document.getElementById(id);
             if (el) {
                 el.remove();

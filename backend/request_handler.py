@@ -3,6 +3,10 @@ from backend.random_generator import employee
 
 employee_list_map = dict()
 
+def get_template_rendered(handler: RequestHandler):
+    data = '<div><label id="label1">Comp-3</label> <button id="button1">Test</button></div>'
+    handler.write(data)
+
 def get_employee_list(handler: RequestHandler):
     data = handler.query_data()
     list_name = data['list_name'][0]

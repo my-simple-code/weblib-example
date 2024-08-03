@@ -1,6 +1,6 @@
 import { Component } from './lib/component.js';
 import { ExampleComponent } from './example/component/example.js';
-import { ExamplePopup } from './example/popup/example.js';
+import { ExampleModal } from './example/modal/example.js';
 import { ExampleControls } from './example/controls/example.js';
 import { ExampleCustomControl} from './example/custom/example.js';
 import { ExampleRender} from './example/render/example.js';
@@ -12,7 +12,7 @@ class Application extends Component {
         this.onPropertyChanged(store, 'status', (val) => this.el('spanStatus').innerText = val);
         this.mainDiv = this.el('main');
         this.menu = new SingleSelect([this.ctl('btnComponent', ExampleComponent),
-                                     this.ctl('btnPopup', ExamplePopup),
+                                     this.ctl('btnModal', ExampleModal),
                                      this.ctl('btnControls', ExampleControls),
                                      this.ctl('btnCustom', ExampleCustomControl),
                                      this.ctl('btnRender', ExampleRender)]);

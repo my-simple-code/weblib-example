@@ -1,32 +1,32 @@
 import { Component } from '../../lib/component.js';
-import { Popup } from '../../lib/popup.js';
+import { Modal } from '../../lib/modal.js';
 import { store } from '../../common/store.js';
 import { FormEditor } from './formEditor.js'
 
 
-export class ExamplePopup extends Component {
+export class ExampleModal extends Component {
     constructor() {
         super();
-        this.templateUrl = '/example/popup/example.html';
+        this.templateUrl = '/example/modal/example.html';
     }
 
     onInit() {
-        store.status = 'ExamplePopup';
-        this.onElementEvent(this.el('alert'), 'click', (evt) => this.popup().show('Hello'));
+        store.status = 'ExampleModal';
+        this.onElementEvent(this.el('alert'), 'click', (evt) => this.modal().show('Hello'));
         this.onElementEvent(this.el('confirmation'), 'click', (evt) => this.confirmation());
         this.onElementEvent(this.el('html'), 'click', (evt) => this.showHtml());
         this.onElementEvent(this.el('component'), 'click', (evt) => this.showComponent(false));
         this.onElementEvent(this.el('componentOnly'), 'click', (evt) => this.showComponent(true));
     }
 
-    popup() { return new Popup();}
-    closePopup() { Popup.close();}
+    modal() { return new Modal(); }
+    closeModal() { Modal.close(); }
 
     confirmation() {
         store.status = '';
-        this.popup()
+        this.modal()
             .title('Confirmation')
-            .button('Yes', () => { store.status = 'Delete data confirmed'; this.closePopup(); })
+            .button('Yes', () => { store.status = 'Delete data confirmed'; this.closeModal(); })
             .button('No')
             .show('Should the data be deleted?');
     }
@@ -35,7 +35,7 @@ export class ExamplePopup extends Component {
         store.status = '';
         const message = '<b>What do you want to do?</b><ul><li>(A) Save data</li><li>(B) Discard changes</li><li>(C) Cancel</li></ul>'
 
-        this.popup()
+        this.modal()
             .title('Please select the next action')
             .button('Case A', (evt) => this.choosed(evt))
             .button('Case B', (evt) => this.choosed(evt))
@@ -45,7 +45,7 @@ export class ExamplePopup extends Component {
 
     choosed(evt) {
         store.status = `${evt.target.innerText} selected`;
-        this.closePopup();
+        this.closeModal();
     }
 
     showComponent(contentOnly=false) {
@@ -54,14 +54,14 @@ export class ExamplePopup extends Component {
         const templateHtml = this.el('inputFormular').innerHTML;
         const comp = new FormEditor(templateHtml);
 
-        const popup = this.popup()
+        const modal = this.modal()
             .title('Header with close button', true)
             .component(comp, !contentOnly, !contentOnly)
             .button('Cancel')
             .button('Accept changes')
             .show();
         
-        comp.ownerPopup = popup;
+        comp.ownerModal = modal;
     }
 }
 

@@ -66,6 +66,7 @@ export class Component {
         this.parent_component = undefined;
         this.child_component_map = {};
         this.child_elem_id_list = [];
+        this.templateIsStatic = true;
     }
     
     get name() { return `${this.constructor.name}`; }
@@ -77,6 +78,9 @@ export class Component {
 
     set templateHtml(value) { Component.template[`${this.name}.html`] = value; }
     get templateHtml() { return Component.template[`${this.name}.html`]; }
+
+    set templateIsStatic(value) { Component.template[`${this.name}.isStatic`] = value; }
+    get templateIsStatic() { return Component.template[`${this.name}.isStatic`]; }
 
     _removeBindings() {
         this.bindings.removeBindings(this.fullname);
@@ -152,10 +156,10 @@ export class Component {
         }
         // if the element already contains a component -> remove it
         this.unloadComponent(elem);
-        await component.loadTemplate();
+        const html = await component.loadTemplate();
 
-        if (component.templateHtml !== undefined) {
-            elem.innerHTML = component.templateHtml;
+        if (html !== undefined) {
+            elem.innerHTML = html;
         }
 
         this.child_component_map[elem.id] = component;
@@ -166,10 +170,14 @@ export class Component {
 
     async loadTemplate() {
         // load template html
-        if (this.templateHtml === undefined && this.templateUrl !== undefined) {
+        let html = this.templateHtml;
+        if (html === undefined && this.templateUrl !== undefined) {
             const response = await fetch(this.templateUrl, { method: "GET" });
-            const html = await response.text();
-            this.templateHtml = html;
+            html = await response.text();
+            if (this.templateIsStatic === true) {
+                this.templateHtml = html;
+            }
         }
+        return html;
     }
 }
