@@ -75,10 +75,8 @@ export class Control {
 }
 
 export class Input extends Control {
-    constructor(element, onTextChanged=undefined) {
+    constructor(element) {
         super(element)
-        this.onTextChanged = onTextChanged;
-        this.element.addEventListener('change', (evt) => this.onChange(evt));
     }
 
     onChange(callback, add=true) {
@@ -91,6 +89,33 @@ export class Input extends Control {
 
     get checked() { return this.element.checked; }
     set checked(val) {this.element.checked = val; }
+}
+
+
+export class ListBox extends Input {
+    constructor(element) {
+        super(element)
+    }
+    get value() { return this.element.value; }
+    get options() { return this.element.options; } 
+    get length() { return this.element.length; }
+    get selectedItems() { return this.option.where(x => x.selected); }
+
+    selectValue(value, selected=true) {
+        var option = this.options.first(x => x.value === value);
+        if (option) {
+            option.selected = selected;
+        }
+    }
+
+    add(text, value) {
+        var option = new Option(text, value, false, false);
+        this.options[this.length] = option;
+    }
+
+    remove(index) {
+        this.options[index] = null;
+    }  
 }
 
 class Cell extends Control {
